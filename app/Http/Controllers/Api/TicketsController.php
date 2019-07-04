@@ -44,5 +44,4 @@ class TicketsController extends Controller
 
         return $ticket->show($garage);
     }
-
 }

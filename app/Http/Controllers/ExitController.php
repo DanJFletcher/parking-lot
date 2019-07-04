@@ -13,8 +13,7 @@ class ExitController extends Controller
     public function index(Request $request)
     {
         $ticket_number = $request->get('ticket_number', false);
-        if($ticket_number)
-        {
+        if ($ticket_number) {
             return redirect('exit/'.$ticket_number);
         }
 
@@ -24,11 +23,11 @@ class ExitController extends Controller
     public function show(Request $request, Ticket $ticket)
     {
         $client = new RestClient();
-        $response = $client->request('GET', 'https://parking-lot.test/api/tickets/'.$ticket->id, ['verify' => false]);
+        $response = $client->request('GET', env('APP_URL') . '/api/tickets/'.$ticket->id, ['verify' => false]);
 
-        $body = (object) json_decode($response->getBody()->getContents(),true);
+        $body = (object) json_decode($response->getBody()->getContents(), true);
 
-        if(isset($body->error)){
+        if (isset($body->error)) {
             $message = $body->error;
         } else {
             $message = 'Ticket: '.$body->id.' :: Hours: '.$body->duration.' :: Amount Due: '.$body->amount_due;
@@ -39,27 +38,28 @@ class ExitController extends Controller
 
     public function store(Request $request, Ticket $ticket)
     {
-        try{
+        try {
             $client = new RestClient();
-            $response = $client->request('POST', 'https://parking-lot.test/api/payments/'.$ticket->id,
+            $response = $client->request(
+                'POST',
+                env('APP_URL'). '/api/payments/'.$ticket->id,
                 [
                     'verify' => false,
                     'form_params' => [
                         'succeed' => $request->input('succeed'),
                         'cc_number' => $request->input('cc_number')
                     ]
-                ]);
-            $body = (object) json_decode($response->getBody()->getContents(),true);
+                ]
+            );
+            $body = (object) json_decode($response->getBody()->getContents(), true);
 
-            if(isset($body->error)){
+            if (isset($body->error)) {
                 $message = $body->error;
             } else {
                 $message = $body->message;
             }
             $success = true;
-
-        }catch(\Exception $e)
-        {
+        } catch (\Exception $e) {
             if ($e->hasResponse()) {
                 $response = $e->getResponse();
                 $body = json_decode($response->getBody()->getContents());

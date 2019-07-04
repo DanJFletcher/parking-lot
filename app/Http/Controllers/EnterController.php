@@ -11,11 +11,11 @@ class EnterController extends Controller
     public function index()
     {
         $client = new RestClient();
-        $response = $client->request('POST', 'https://parking-lot.test/api/tickets', ['verify' => false]);
+        $response = $client->request('POST', env('APP_URL') . '/api/tickets', ['verify' => false]);
 
-        $body = (object) json_decode($response->getBody()->getContents(),true);
+        $body = (object) json_decode($response->getBody()->getContents(), true);
 
-        if(isset($body->error)){
+        if (isset($body->error)) {
             $ticket_number = null;
             $message = $body->error;
         } else {
